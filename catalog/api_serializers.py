@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, ProductImage, Unit
+from .models import Category, Product, ProductImage, Unit, CarouselBanner
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -65,3 +65,8 @@ class ProductDetailSerializer(ProductListSerializer):
 
     class Meta(ProductListSerializer.Meta):
         fields = ProductListSerializer.Meta.fields + ("description", "images")
+
+class CarouselBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarouselBanner
+        fields = ["id", "title", "description", "image", "link", "order", "is_active"]

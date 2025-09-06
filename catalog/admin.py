@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from django.contrib import admin
-from .models import Category, Product, ProductImage, Inventory, Unit
+from .models import Category, Product, ProductImage, Inventory, Unit, CarouselBanner
 
 @admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):
@@ -35,6 +35,11 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ("name", "slug", "description")
     prepopulated_fields = {"slug": ("name",)}
     inlines = [ProductImageInline, InventoryInline]
+
+@admin.register(CarouselBanner)
+class CarouselBannerAdmin(admin.ModelAdmin):
+    list_display = ("title", "order", "is_active", "created_at")
+    list_editable = ("order", "is_active")
 
 
 # Optional: register directly (if you want quick access too)

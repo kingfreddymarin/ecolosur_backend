@@ -1,11 +1,12 @@
 from rest_framework import viewsets, mixins
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, Product
+from .models import Category, Product, CarouselBanner
 from .api_serializers import (
     CategorySerializer,
     ProductListSerializer,
     ProductDetailSerializer,
+    CarouselBannerSerializer
 )
 
 
@@ -34,3 +35,7 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
         if in_stock in ("1", "true", "True"):
             qs = qs.filter(inventory__quantity__gt=0)
         return qs
+
+class CarouselBannerViewSet(viewsets.ModelViewSet):
+    queryset = CarouselBanner.objects.filter(is_active=True).order_by("order")
+    serializer_class = CarouselBannerSerializer
