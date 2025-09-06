@@ -1,0 +1,36 @@
+# -----------------
+# PyCharm / JetBrains
+# -----------------
+.idea/
+*.iml
+
+# -----------------
+# Python
+# -----------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# -----------------
+# Virtual Environments
+# -----------------
+.venv/
+venv/
+env/
+ENV/
+
+# -----------------
+# Django
+# -----------------
+*.log
+*.pot
+*.py,cover
+db.sqlite3
+media/
+staticfiles/
+
+# -----------------
+# OS
+# -----------------
+.DS_Store
+Thumbs.db
