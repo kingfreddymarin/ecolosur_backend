@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import Category, Product, ProductImage, Unit, CarouselBanner
+from .models import Category, Product, ProductImage, Unit, CarouselBanner, Sale, BusinessSettings
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("id", "name", "slug", "description")
+        fields = ("id", "name", "slug", "description", "icon")
 
 
 class UnitSerializer(serializers.ModelSerializer):
@@ -66,7 +66,31 @@ class ProductDetailSerializer(ProductListSerializer):
     class Meta(ProductListSerializer.Meta):
         fields = ProductListSerializer.Meta.fields + ("description", "images")
 
+
 class CarouselBannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarouselBanner
         fields = ["id", "title", "description", "image", "link", "order", "is_active"]
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sale
+        fields = ["id", "product", "quantity", "sold_price", "created_at"]
+
+    def validate(self, data):
+        product = data["product"]
+        quantity = data["quantity"]
+        if not hasattr(product, "inventory"):
+            raise serializers.ValidationError("This product has no inventory record.")
+        if quantity > product.inventory.quantity:
+            raise serializers.ValidationError(
+                f"Not enough stock: only {product.inventory.quantity} left."
+            )
+        return data
+
+
+class BusinessSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BusinessSettings
+        fields = ["id", "name", "whatsapp_number"]

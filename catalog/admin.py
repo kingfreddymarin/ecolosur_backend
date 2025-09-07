@@ -1,7 +1,11 @@
 from django.contrib import admin
 
 from django.contrib import admin
-from .models import Category, Product, ProductImage, Inventory, Unit, CarouselBanner
+from .models import Category, Product, ProductImage, Inventory, Unit, CarouselBanner, Sale, BusinessSettings
+
+@admin.register(BusinessSettings)
+class BusinessSettingsAdmin(admin.ModelAdmin):
+    list_display = ("name", "whatsapp_number", "updated_at")
 
 @admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):
@@ -23,7 +27,7 @@ class InventoryInline(admin.StackedInline):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "is_active", "updated_at")
+    list_display = ("name", "is_active", "updated_at", "icon")
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ("name",)
 
@@ -41,7 +45,17 @@ class CarouselBannerAdmin(admin.ModelAdmin):
     list_display = ("title", "order", "is_active", "created_at")
     list_editable = ("order", "is_active")
 
+@admin.register(Sale)
+class SaleAdmin(admin.ModelAdmin):
+    list_display = ("product", "quantity", "sold_price", "created_at")
+    list_filter = ("created_at", "product")
+
+@admin.register(Inventory)
+class InventoryAdmin(admin.ModelAdmin):
+    list_display = ("product", "sku", "quantity", "updated_at")
+    search_fields = ("product__name", "sku")
+
 
 # Optional: register directly (if you want quick access too)
 admin.site.register(ProductImage)
-admin.site.register(Inventory)
+# admin.site.register(Inventory)

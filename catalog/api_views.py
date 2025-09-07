@@ -1,12 +1,14 @@
 from rest_framework import viewsets, mixins
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, Product, CarouselBanner
+from .models import Category, Product, CarouselBanner, Sale, BusinessSettings
 from .api_serializers import (
     CategorySerializer,
     ProductListSerializer,
     ProductDetailSerializer,
-    CarouselBannerSerializer
+    CarouselBannerSerializer,
+    SaleSerializer,
+    BusinessSettingsSerializer
 )
 
 
@@ -36,6 +38,17 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
             qs = qs.filter(inventory__quantity__gt=0)
         return qs
 
+
 class CarouselBannerViewSet(viewsets.ModelViewSet):
     queryset = CarouselBanner.objects.filter(is_active=True).order_by("order")
     serializer_class = CarouselBannerSerializer
+
+
+class SaleViewSet(viewsets.ModelViewSet):
+    queryset = Sale.objects.all().order_by("-created_at")
+    serializer_class = SaleSerializer
+
+
+class BusinessSettingsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = BusinessSettings.objects.all()
+    serializer_class = BusinessSettingsSerializer

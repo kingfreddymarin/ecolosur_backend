@@ -1,5 +1,21 @@
 from django.db import models
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
+
+class BusinessSettings(models.Model):
+    name = models.CharField(max_length=255, default="Ecolo-Sur Market 🌱")
+    whatsapp_number = models.CharField(
+        max_length=20,
+        help_text="Include country code, e.g., 50585723217"
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Business Setting"
+        verbose_name_plural = "Business Settings"
+
+    def __str__(self):
+        return self.name
 
 
 class TimeStampedModel(models.Model):
@@ -16,6 +32,12 @@ class Category(TimeStampedModel):
     slug = models.SlugField(max_length=140, unique=True, blank=True)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
+    icon = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        help_text="Emoji or short text icon for frontend display"
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -95,3 +117,38 @@ class CarouselBanner(models.Model):
 
     def __str__(self):
         return self.title if self.title else f"Banner {self.id}"
+
+class Sale(models.Model):
+    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="sales")
+    quantity = models.PositiveIntegerField(default=1)
+    sold_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Sold price per unit"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if not hasattr(self.product, "inventory"):
+            raise ValidationError(f"Product {self.product.name} has no inventory record")
+        if self.quantity > self.product.inventory.quantity:
+            raise ValidationError(
+                f"Not enough stock: only {self.product.inventory.quantity} left."
+            )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        # Ensure product has inventory
+        if not hasattr(self.product, "inventory"):
+            raise ValueError(f"Product {self.product.name} has no inventory record")
+
+        if self.product.inventory.quantity >= self.quantity:
+            self.product.inventory.quantity -= self.quantity
+            self.product.inventory.save()
+        else:
+            raise ValueError("Not enough stock available for this sale")
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Sale of {self.quantity} x {self.product.name} at {self.sold_price}"
