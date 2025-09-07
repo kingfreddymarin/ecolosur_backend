@@ -11,21 +11,25 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%i3wvg(#-zae=^nw$b2w7^!qb1_tsn2x0zurd^^$_dg#b!%vh7'
-
+SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-ALLOWED_HOSTS = ["http://localhost:5173/", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 
 
 # Application definition
@@ -60,8 +64,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://yourdomain.com",
 ]
+
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 ROOT_URLCONF = 'ecolosur_backend.urls'
 
 TEMPLATES = [
@@ -92,14 +97,16 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "ecolosur_db",
-        "USER": "admin",
-        "PASSWORD": "NmJQ9Kzzon5cPpzK8r07GCwcOXSZ25jn",
-        "HOST": "dpg-d2uo2tjuibrs73fsfqtg-a.oregon-postgres.render.com",  # ✅ full hostname
-        "PORT": "5432",
-    }
+    # "default": {
+    #     "ENGINE": "django.db.backends.postgresql",
+    #     "NAME": "ecolosur_db",
+    #     "USER": "admin",
+    #     "PASSWORD": "NmJQ9Kzzon5cPpzK8r07GCwcOXSZ25jn",
+    #     "HOST": "dpg-d2uo2tjuibrs73fsfqtg-a.oregon-postgres.render.com",  # ✅ full hostname
+    #     "PORT": "5432",
+    # },
+    "default": env.db("DATABASE_URL")
+
 }
 
 
