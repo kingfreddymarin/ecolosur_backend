@@ -78,7 +78,7 @@ class Product(TimeStampedModel):
 
 class ProductImage(TimeStampedModel):
     product = models.ForeignKey(Product, related_name="images", on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="products/")
+    image = models.URLField(blank=True)
     alt_text = models.CharField(max_length=160, blank=True)
     tag = models.CharField(
         max_length=20, blank=True,
@@ -104,7 +104,7 @@ class Inventory(TimeStampedModel):
 class CarouselBanner(models.Model):
     title = models.CharField(max_length=150, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to="carousel/", blank=False, null=False)
+    image = models.URLField(blank=True)
     link = models.URLField(blank=True, null=True, help_text="Optional link when clicking the banner")
     order = models.PositiveIntegerField(default=0, help_text="Sorting order in carousel")
     is_active = models.BooleanField(default=True)

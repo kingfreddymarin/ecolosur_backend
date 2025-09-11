@@ -29,6 +29,9 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
 
+UPLOADCARE_PUBLIC_KEY = env("UPLOADCARE_PUBLIC_KEY")
+UPLOADCARE_SECRET_KEY = env("UPLOADCARE_SECRET_KEY")
+
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 
 
