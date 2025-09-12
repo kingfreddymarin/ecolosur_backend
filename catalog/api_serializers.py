@@ -15,15 +15,9 @@ class UnitSerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
-
     class Meta:
         model = ProductImage
-        fields = ("id", "tag", "is_primary", "alt_text", "image_url")
-
-    def get_image_url(self, obj):
-        request = self.context.get("request")
-        return request.build_absolute_uri(obj.image.url) if request else obj.image.url
+        fields = ("id", "tag", "is_primary", "alt_text", "image")  # now just returns the URL
 
 
 class ProductListSerializer(serializers.ModelSerializer):
