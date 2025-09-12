@@ -16,7 +16,7 @@ class UnitAdmin(admin.ModelAdmin):
 class ProductImageInline(admin.TabularInline):
     form = ProductImageForm
     model = ProductImage
-    extra = 1   # show one empty slot by default
+    extra = 1
     fields = ("image", "alt_text", "tag", "is_primary")
 
 
@@ -46,7 +46,6 @@ class ProductAdmin(admin.ModelAdmin):
 class CarouselBannerAdmin(admin.ModelAdmin):
     form = CarouselBannerForm
     list_display = ("title", "order", "is_active", "created_at")
-    list_editable = ("order", "is_active")
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):

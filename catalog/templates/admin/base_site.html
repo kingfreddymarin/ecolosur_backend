@@ -1,7 +1,10 @@
 {% extends "admin/base.html" %}
 
+{% block branding %}
+  <h1 id="site-name">🌱 Ecolo-Sur Admin</h1>
+{% endblock %}
+
 {% block extrahead %}
   {{ block.super }}
-  <!-- UploadCare widget script -->
   <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
 {% endblock %}
