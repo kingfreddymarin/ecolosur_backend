@@ -8,3 +8,4 @@ whitenoise==6.9.0
 psycopg2-binary==2.9.10
 pillow==11.3.0
 sqlparse==0.5.3
+pyuploadcare==6.2.1
