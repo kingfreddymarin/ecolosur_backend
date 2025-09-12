@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from django.contrib import admin
 from .models import Category, Product, ProductImage, Inventory, Unit, CarouselBanner, Sale, BusinessSettings
+from .forms import ProductImageForm, CarouselBannerForm
 
 @admin.register(BusinessSettings)
 class BusinessSettingsAdmin(admin.ModelAdmin):
@@ -13,6 +14,7 @@ class UnitAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 class ProductImageInline(admin.TabularInline):
+    form = ProductImageForm
     model = ProductImage
     extra = 1   # show one empty slot by default
     fields = ("image", "alt_text", "tag", "is_primary")
@@ -42,6 +44,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(CarouselBanner)
 class CarouselBannerAdmin(admin.ModelAdmin):
+    form = CarouselBannerForm
     list_display = ("title", "order", "is_active", "created_at")
     list_editable = ("order", "is_active")
 
