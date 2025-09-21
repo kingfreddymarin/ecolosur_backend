@@ -93,14 +93,14 @@ class ProductImage(TimeStampedModel):
         return f"{self.product.name} ({self.tag or 'image'})"
 
 
-class Inventory(TimeStampedModel):
-    product = models.OneToOneField(Product, related_name="inventory", on_delete=models.CASCADE)
-    sku = models.CharField(max_length=64, unique=True, blank=True)
-    quantity = models.PositiveIntegerField(default=0)
+class Inventory(models.Model):
+    sku = models.CharField(max_length=10, unique=True, blank=True)
+    product = models.ForeignKey("Product", on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.sku:
-            # Get last SKU
             last_item = Inventory.objects.order_by('-sku').first()
             if last_item and last_item.sku.startswith("P"):
                 last_number = int(last_item.sku[1:])
@@ -109,9 +109,6 @@ class Inventory(TimeStampedModel):
                 new_number = 0
             self.sku = f"P{new_number:03d}"
         super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.sku} • {self.quantity}"
 
 class CarouselBanner(models.Model):
     title = models.CharField(max_length=150, blank=True, null=True)
