@@ -25,7 +25,7 @@ class ProductListSerializer(serializers.ModelSerializer):
     unit = UnitSerializer(read_only=True)
     primary_image = serializers.SerializerMethodField()
     in_stock = serializers.SerializerMethodField()
-    availability = serializers.SerializerMethodField()  # 👈 new
+    availability = serializers.SerializerMethodField()
 
     class Meta:
         model = Product

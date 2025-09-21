@@ -95,8 +95,20 @@ class ProductImage(TimeStampedModel):
 
 class Inventory(TimeStampedModel):
     product = models.OneToOneField(Product, related_name="inventory", on_delete=models.CASCADE)
-    sku = models.CharField(max_length=64, unique=True)
+    sku = models.CharField(max_length=64, unique=True, blank=True)
     quantity = models.PositiveIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if not self.sku:
+            # Get last SKU
+            last_item = Inventory.objects.order_by('-sku').first()
+            if last_item and last_item.sku.startswith("P"):
+                last_number = int(last_item.sku[1:])
+                new_number = last_number + 1
+            else:
+                new_number = 0
+            self.sku = f"P{new_number:03d}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.sku} • {self.quantity}"

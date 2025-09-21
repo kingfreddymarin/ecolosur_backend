@@ -55,7 +55,8 @@ class SaleAdmin(admin.ModelAdmin):
 @admin.register(Inventory)
 class InventoryAdmin(admin.ModelAdmin):
     list_display = ("product", "sku", "quantity", "updated_at")
-    search_fields = ("product__name", "sku")
+    search_fields = ("product__name",)
+    readonly_fields = ("sku",)
 
 
 # Optional: register directly (if you want quick access too)
