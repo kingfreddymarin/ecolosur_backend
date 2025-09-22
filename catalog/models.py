@@ -67,6 +67,8 @@ class Product(TimeStampedModel):
     category = models.ForeignKey("Category", related_name="products", on_delete=models.CASCADE)
     unit = models.ForeignKey("Unit", related_name="products", on_delete=models.PROTECT)  # 👈 NEW FK
 
+    quantity = models.PositiveIntegerField(default=0)
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -95,12 +97,12 @@ class ProductImage(TimeStampedModel):
 
 class Inventory(models.Model):
     sku = models.CharField(max_length=10, unique=True, blank=True)
-    product = models.ForeignKey("Product", on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=0)
+    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="inventory_movements")
+    quantity = models.IntegerField(default=0)  # positive for restock, could allow negative for adjustment
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)  # ✅ add this
 
     def save(self, *args, **kwargs):
+        is_new = self._state.adding  # detect if this is a new movement
         if not self.sku:
             last_item = Inventory.objects.order_by('-sku').first()
             if last_item and last_item.sku.startswith("P"):
@@ -109,7 +111,13 @@ class Inventory(models.Model):
             else:
                 new_number = 0
             self.sku = f"P{new_number:03d}"
+
         super().save(*args, **kwargs)
+
+        # Only adjust product stock when this is a new record
+        if is_new:
+            self.product.quantity += self.quantity
+            self.product.save()
 
 class CarouselBanner(models.Model):
     title = models.CharField(max_length=150, blank=True, null=True)
@@ -131,33 +139,20 @@ class CarouselBanner(models.Model):
 class Sale(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="sales")
     quantity = models.PositiveIntegerField(default=1)
-    sold_price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name="Sold price per unit"
-    )
+    sold_price = models.DecimalField(max_digits=10, decimal_places=2)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
-        if not hasattr(self.product, "inventory"):
-            raise ValidationError(f"Product {self.product.name} has no inventory record")
-        if self.quantity > self.product.inventory.quantity:
+        if self.quantity > self.product.quantity:
             raise ValidationError(
-                f"Not enough stock: only {self.product.inventory.quantity} left."
+                f"Not enough stock: only {self.product.quantity} left."
             )
 
     def save(self, *args, **kwargs):
         self.clean()
-        # Ensure product has inventory
-        if not hasattr(self.product, "inventory"):
-            raise ValueError(f"Product {self.product.name} has no inventory record")
-
-        if self.product.inventory.quantity >= self.quantity:
-            self.product.inventory.quantity -= self.quantity
-            self.product.inventory.save()
-        else:
-            raise ValueError("Not enough stock available for this sale")
-
+        self.product.quantity -= self.quantity
+        self.product.save()
         super().save(*args, **kwargs)
 
     def __str__(self):
