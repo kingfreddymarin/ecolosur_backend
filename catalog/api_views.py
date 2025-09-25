@@ -17,11 +17,13 @@ class CategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = CategorySerializer
 
 
-class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class ProductViewSet(mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     viewsets.GenericViewSet):
     queryset = (
         Product.objects.filter(is_active=True)
-        .select_related("category")
-        .prefetch_related("images", "inventory")
+        .select_related("category", "unit")
+        .prefetch_related("images")
         .order_by("-updated_at")
     )
     filter_backends = [SearchFilter, DjangoFilterBackend]
@@ -35,9 +37,8 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
         qs = super().get_queryset()
         in_stock = self.request.query_params.get("in_stock")
         if in_stock in ("1", "true", "True"):
-            qs = qs.filter(inventory__quantity__gt=0)
+            qs = qs.filter(quantity__gt=0)
         return qs
-
 
 class CarouselBannerViewSet(viewsets.ModelViewSet):
     queryset = CarouselBanner.objects.filter(is_active=True).order_by("order")
