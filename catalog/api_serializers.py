@@ -46,12 +46,10 @@ class ProductListSerializer(serializers.ModelSerializer):
         return ProductImageSerializer(img, context=self.context).data if img else None
 
     def get_in_stock(self, obj):
-        inv = getattr(obj, "inventory", None)
-        return bool(inv and inv.quantity > 0)
+        return obj.quantity > 0
 
     def get_availability(self, obj):
-        inv = getattr(obj, "inventory", None)
-        return inv.quantity if inv else 0
+        return obj.quantity
 
 
 class ProductDetailSerializer(ProductListSerializer):
@@ -75,11 +73,9 @@ class SaleSerializer(serializers.ModelSerializer):
     def validate(self, data):
         product = data["product"]
         quantity = data["quantity"]
-        if not hasattr(product, "inventory"):
-            raise serializers.ValidationError("This product has no inventory record.")
-        if quantity > product.inventory.quantity:
+        if quantity > product.quantity:
             raise serializers.ValidationError(
-                f"Not enough stock: only {product.inventory.quantity} left."
+                f"Not enough stock: only {product.quantity} left."
             )
         return data
 
