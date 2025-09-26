@@ -50,6 +50,31 @@ INSTALLED_APPS = [
     "corsheaders"
 ]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",   # 👈 add a formatter
+        },
+    },
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name} {message}",
+            "style": "{",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "ERROR",
+    },
+}
+
+REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "your_project.utils.logging.custom_exception_handler"
+}
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",   # must be at the very top
     "django.middleware.common.CommonMiddleware",
